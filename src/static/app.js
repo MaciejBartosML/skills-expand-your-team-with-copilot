@@ -569,6 +569,15 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <button class="share-button share-twitter" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" aria-label="Share on X (Twitter)">𝕏</button>
+          <button class="share-button share-facebook" data-activity="${name}" aria-label="Share on Facebook">f</button>
+          <button class="share-button share-email" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" aria-label="Share via Email">✉</button>
+          <button class="share-button share-copy" data-activity="${name}" aria-label="Copy link">🔗</button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +595,73 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    activityCard.querySelectorAll(".share-twitter").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activity = btn.dataset.activity;
+        const description = btn.dataset.description;
+        const activityUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activity)}`;
+        const text = encodeURIComponent(
+          `Check out "${activity}" at Mergington High School! ${description} ${activityUrl}`
+        );
+        window.open(
+          `https://twitter.com/intent/tweet?text=${text}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      });
+    });
+
+    activityCard.querySelectorAll(".share-facebook").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activity = btn.dataset.activity;
+        const activityUrl = encodeURIComponent(
+          `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activity)}`
+        );
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${activityUrl}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      });
+    });
+
+    activityCard.querySelectorAll(".share-email").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activity = btn.dataset.activity;
+        const description = btn.dataset.description;
+        const activityUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activity)}`;
+        const subject = encodeURIComponent(
+          `Join "${activity}" at Mergington High School!`
+        );
+        const body = encodeURIComponent(
+          `Hi,\n\nI wanted to share this extracurricular activity with you:\n\n${activity}\n${description}\n\nFind out more at: ${activityUrl}`
+        );
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      });
+    });
+
+    activityCard.querySelectorAll(".share-copy").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activity = btn.dataset.activity;
+        const activityUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activity)}`;
+        navigator.clipboard
+          .writeText(activityUrl)
+          .then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = "✓";
+            btn.classList.add("share-copied");
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.classList.remove("share-copied");
+            }, 2000);
+          })
+          .catch(() => {
+            showMessage("Could not copy link to clipboard.", "error");
+          });
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
